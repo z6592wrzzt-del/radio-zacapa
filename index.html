@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radio Zacapa | Busca y escucha música</title>
+<meta name="description" content="Busca cualquier canción o artista y escúchala en Radio Zacapa.">
+<meta name="theme-color" content="#150d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ff4d6d'/%3E%3Cpath d='M32 34h36L36 68h32' fill='none' stroke='%23fff' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#150d12;--bg2:#1f121a;--ink:#f6ede4;--muted:#b9a79c;--line:rgba(255,255,255,.1);--amber:#ffb02e;--rose:#ff4d6d;--grad:linear-gradient(135deg,#ffb02e,#ff4d6d)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg) radial-gradient(800px 400px at 90% -5%,rgba(255,77,109,.2),transparent 60%);color:var(--ink);font:400 1.05rem/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:150px}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{max-width:900px;margin:0 auto;padding:28px 16px 8px;text-align:center}
+.logo{width:76px;height:76px}
+h1{font:800 clamp(2rem,7vw,3rem)/1.1 "Trebuchet MS",system-ui,sans-serif;margin:8px 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+form{display:flex;gap:8px;max-width:640px;margin:0 auto}
+input[type=search]{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:16px 22px;min-height:56px}
+.go{font:700 1rem inherit;border:0;border-radius:999px;padding:0 26px;min-height:56px;background:var(--grad);color:#1a0d12;cursor:pointer;font-family:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0 0}
+.chip{font:inherit;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:10px 18px;min-height:44px;cursor:pointer}
+.chip:hover{border-color:var(--amber)}
+main{max-width:900px;margin:0 auto;padding:16px}
+#msg{color:var(--muted);text-align:center;min-height:1.5em}
+#msg.err{color:#ff8a9d}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.item{display:flex;align-items:center;gap:14px;padding:10px 12px;background:var(--bg2);border:1px solid var(--line);border-radius:16px;cursor:pointer;width:100%;text-align:left;color:inherit;font:inherit}
+.item:hover{border-color:var(--amber)}
+.item.on{border-color:var(--rose);background:linear-gradient(90deg,rgba(255,77,109,.16),var(--bg2))}
+.item img{width:60px;height:60px;border-radius:10px;object-fit:cover;flex:none;background:#2b1b24}
+.t{min-width:0;flex:1;display:grid}.t strong,.t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.t span{color:var(--muted);font-size:.95rem}
+.ic{font-size:1.3rem;color:var(--amber);flex:none}
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(31,18,26,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar-in{max-width:900px;margin:0 auto;display:grid;gap:6px}
+.now{display:flex;align-items:center;gap:12px;min-height:50px}
+.now img{width:50px;height:50px;border-radius:8px;background:#2b1b24}
+.now .t{flex:1}
+.ctl{display:flex;align-items:center;gap:8px}
+.btn{width:52px;height:52px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:1.2rem;cursor:pointer;border:1px solid var(--line)}
+.btn.main{background:var(--grad);color:#1a0d12;width:60px;height:60px;font-size:1.4rem;border:0}
+.row{display:flex;align-items:center;gap:10px}
+.row input{flex:1;accent-color:var(--amber);height:28px}
+.time{font-size:.85rem;color:var(--muted);min-width:42px}
+.vol{max-width:130px}
+.credit{text-align:center;color:var(--muted);font-size:.85rem;margin-top:20px}
+@media(max-width:560px){.vol{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="Logo de Radio Zacapa"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb02e"/><stop offset="1" stop-color="#ff4d6d"/></linearGradient></defs><circle cx="60" cy="60" r="56" fill="#1f121a" stroke="url(#g)" stroke-width="4"/><path d="M40 42h40L46 78h36" fill="none" stroke="#f6ede4" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="92" cy="30" r="5" fill="#ff4d6d"/></svg>
+  <h1>Radio Zacapa</h1>
+  <p class="sub">Busca una canción o un artista y dale play.</p>
+  <form id="f" role="search">
+    <input id="q" type="search" placeholder="Canción o artista…" aria-label="Buscar música" autocomplete="off" required>
+    <button class="go" type="submit">Buscar</button>
+  </form>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main>
+  <p id="msg" role="status" aria-live="polite">Escribe lo que quieres escuchar.</p>
+  <ul id="list"></ul>
+  <p class="credit">Vista previa de 30 segundos de cada canción, cortesía de Apple (iTunes Search API).</p>
+</main>
+
+<div class="bar" aria-label="Reproductor">
+  <div class="bar-in">
+    <div class="now">
+      <img id="cov" alt="" width="50" height="50">
+      <div class="t"><strong id="ti">Nada en reproducción</strong><span id="ar">Elige una canción</span></div>
+      <div class="ctl">
+        <button class="btn" id="prev" aria-label="Anterior">⏮</button>
+        <button class="btn main" id="pp" aria-label="Reproducir">▶</button>
+        <button class="btn" id="next" aria-label="Siguiente">⏭</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="time" id="cur">0:00</span>
+      <input id="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progreso">
+      <span class="time" id="dur">0:00</span>
+      <input id="vol" class="vol" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen">
+    </div>
+  </div>
+</div>
+<audio id="au" preload="none"></audio>
+
+<script>
+"use strict";
+/* RADIO ZACAPA — buscador. Fuente: iTunes Search API (gratis, sin clave, vista previa de 30 s). */
+const $ = (s) => document.querySelector(s);
+const au = $("#au"); let tracks = []; let idx = -1;
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x !== undefined) n.textContent = x; return n; };
+const fmt = (s) => (isFinite(s) ? Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0") : "0:00");
+const msg = (t, e) => { $("#msg").textContent = t; $("#msg").className = e ? "err" : ""; };
+
+["Reggaetón","Pop","Rock","Salsa","Bachata","Cumbia","Hip hop"].forEach((g) => {
+  const b = el("button", "chip", g); b.type = "button"; b.onclick = () => { $("#q").value = g; search(g); }; $("#chips").append(b);
+});
+
+$("#f").addEventListener("submit", (e) => { e.preventDefault(); search($("#q").value.trim()); });
+
+async function search(term) {
+  if (!term) return;
+  msg("Buscando…"); $("#list").replaceChildren();
+  try {
+    const r = await fetch("https://itunes.apple.com/search?media=music&entity=song&limit=30&term=" + encodeURIComponent(term));
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    tracks = d.results.filter((x) => x.previewUrl).map((x) => ({
+      title: x.trackName, artist: x.artistName, url: x.previewUrl,
+      cover: (x.artworkUrl100 || "").replace("100x100", "300x300")
+    }));
+    idx = -1; draw();
+    msg(tracks.length ? tracks.length + " resultados para “" + term + "”" : "No encontramos resultados. Prueba con otro nombre.");
+  } catch { msg("No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.", true); }
+}
+
+function draw() {
+  const ul = $("#list"); ul.replaceChildren();
+  tracks.forEach((t, i) => {
+    const li = el("li"); const b = el("button", "item" + (i === idx ? " on" : "")); b.type = "button";
+    const im = el("img"); im.src = t.cover; im.alt = ""; im.width = 60; im.height = 60; im.loading = "lazy";
+    const tx = el("div", "t"); tx.append(el("strong", "", t.title), el("span", "", t.artist));
+    b.append(im, tx, el("span", "ic", i === idx && !au.paused ? "⏸" : "▶")); b.onclick = () => (i === idx ? toggle() : play(i));
+    li.append(b); ul.append(li);
+  });
+}
+
+function play(i) {
+  if (i < 0 || i >= tracks.length) return;
+  idx = i; const t = tracks[i];
+  au.src = t.url; au.play().catch(() => msg("No se pudo reproducir esta canción.", true));
+  $("#ti").textContent = t.title; $("#ar").textContent = t.artist; $("#cov").src = t.cover;
+  if ("mediaSession" in navigator && window.MediaMetadata) navigator.mediaSession.metadata = new MediaMetadata({ title: t.title, artist: t.artist, artwork: [{ src: t.cover }] });
+  draw();
+}
+const toggle = () => { if (idx < 0 && tracks.length) return play(0); au.paused ? au.play() : au.pause(); };
+
+$("#pp").onclick = toggle;
+$("#next").onclick = () => play(idx + 1 < tracks.length ? idx + 1 : 0);
+$("#prev").onclick = () => play(idx > 0 ? idx - 1 : tracks.length - 1);
+au.addEventListener("play", () => { $("#pp").textContent = "⏸"; $("#pp").setAttribute("aria-label", "Pausar"); draw(); });
+au.addEventListener("pause", () => { $("#pp").textContent = "▶"; $("#pp").setAttribute("aria-label", "Reproducir"); draw(); });
+au.addEventListener("ended", () => $("#next").click());
+au.addEventListener("loadedmetadata", () => ($("#dur").textContent = fmt(au.duration)));
+au.addEventListener("timeupdate", () => { $("#cur").textContent = fmt(au.currentTime); $("#seek").value = au.duration ? (au.currentTime / au.duration) * 100 : 0; });
+$("#seek").oninput = (e) => { if (au.duration) au.currentTime = (e.target.value / 100) * au.duration; };
+$("#vol").oninput = (e) => (au.volume = Number(e.target.value)); au.volume = 0.8;
+if ("mediaSession" in navigator) { navigator.mediaSession.setActionHandler("play", () => au.play()); navigator.mediaSession.setActionHandler("pause", () => au.pause()); navigator.mediaSession.setActionHandler("nexttrack", () => $("#next").click()); navigator.mediaSession.setActionHandler("previoustrack", () => $("#prev").click()); }
+</script>
+</body>
+</html>
